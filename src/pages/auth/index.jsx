@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Victory from '@/assets/victory.svg'
 import login from '@/assets/login2.png'
+import { Toaster, toast } from 'sonner'
 import {
   Tabs,
   TabsContent,
@@ -15,34 +16,45 @@ function Auth() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  const handleSignup = async (e) => {
-    e.preventDefault()
-    if (!email || !password || !confirmPassword) {
-      alert('Please fill all fields')
-      return
+  const validateSignup = () => {
+    if (!email.length) {
+      toast.error('Email is required')
+      return false
+    }
+    if (!password.length || !confirmPassword.length) {
+      toast.error('Password and Confirm Password are required')
+      return false
     }
     if (password !== confirmPassword) {
-      alert("Passwords don't match")
-      return
+      toast.error('Passwords do not match')
+      return false
     }
+    return true
+  }
 
-    // signup logic
-    console.log('Registering:', { email, password })
+  const handleSignup = async (e) => {
+    e.preventDefault()
+    if (validateSignup()) {
+      toast.success('Signup successful!')
+      // Add your signup logic here
+    }
   }
 
   const handleLogin = async (e) => {
     e.preventDefault()
     if (!email || !password) {
-      alert('Please enter email and password')
+      toast.error('Please enter email and password')
       return
     }
 
-    // login logic
+    toast.success('Login successful!')
+    // Add your login logic here
     console.log('Logging in:', { email, password })
   }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-muted px-4">
+      <Toaster position="top-right" richColors />
       <div className="w-full max-w-6xl bg-white shadow-xl rounded-3xl overflow-hidden grid grid-cols-1 xl:grid-cols-2">
         {/* Left Column */}
         <div className="flex flex-col items-center justify-center px-6 py-12 gap-8">
