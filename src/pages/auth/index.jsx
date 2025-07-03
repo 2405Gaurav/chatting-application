@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Victory from '@/assets/victory.svg'
 import login from '@/assets/login2.png'
+import { Toaster } from '@/components/ui/sonner'
 import {
   Tabs,
   TabsContent,
@@ -15,19 +16,18 @@ function Auth() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  const handleSignup = async (e) => {
-    e.preventDefault()
-    if (!email || !password || !confirmPassword) {
-      alert('Please fill all fields')
-      return
-    }
-    if (password !== confirmPassword) {
-      alert("Passwords don't match")
-      return
-    }
+  const validateSignup = () => {
+    if (!email.length) {
 
-    // signup logic
-    console.log('Registering:', { email, password })
+      Toaster.error("Email is required")
+      return
+    }
+  }
+  const handleSignup = async () => {
+    if(validateSignup()){
+      alert("done");
+    }
+   
   }
 
   const handleLogin = async (e) => {
