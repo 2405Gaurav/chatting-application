@@ -4,14 +4,20 @@ import { Button } from '@/components/ui/button'
 import Victory from '@/assets/victory.svg'
 import login from '@/assets/login2.png'
 import { Toaster, toast } from 'sonner'
+import {apiClient} from '@/lib/api-client.js'
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger
 } from '@/components/ui/tabs'
+import { SIGNUP, LOGIN } from '@/utils/constants'
+import { useNavigate } from 'react-router-dom'
+
 
 function Auth() {
+  const navigate=useNavigate()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -31,25 +37,46 @@ function Auth() {
     }
     return true
   }
+  const validateLogin = () => {
+    if (!email.length) {
+      toast.error('Email is required')
+      return false
+    }
+    if (!password.length ) {
+      toast.error('Password is required')
+      return false
+    }
+   
+    return true
+  }
 
   const handleSignup = async (e) => {
     e.preventDefault()
     if (validateSignup()) {
       toast.success('Signup successful!')
-      // Add your signup logic here
+      const response= await apiClient.post(SIGNUP,{email,password},{withCredentials:true})
+      console.log({response})
+      
+      if(response.status===201){
+        navigate('/profile');
+      }
     }
   }
 
   const handleLogin = async (e) => {
     e.preventDefault()
-    if (!email || !password) {
-      toast.error('Please enter email and password')
-      return
+    if (validateLogin()) {
+      toast.success('Login successful!')
+      // Add your login logic here
+      const response=await apiClient.post(LOGIN,{email,password},{withCredentials:true})
+      console.log({response})
+      if(response.data.user.profileSetup){
+        window.location.href='/'
+      }
+      // if(response.status===200){
+      //   window.location.href='/'
+      // }
     }
-
-    toast.success('Login successful!')
-    // Add your login logic here
-    console.log('Logging in:', { email, password })
   }
 
   return (
