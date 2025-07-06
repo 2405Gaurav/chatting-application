@@ -5,5 +5,6 @@ const authRoute=Router();
 
 authRoute.post('/signup',signup);
 authRoute.post('/login',login);
+authRoute.post('/login',lougou);
 
 export default authRoute;
