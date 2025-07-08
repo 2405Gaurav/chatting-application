@@ -13,9 +13,11 @@ import {
 } from '@/components/ui/tabs'
 import { SIGNUP, LOGIN } from '@/utils/constants'
 import { useNavigate } from 'react-router-dom'
+import { useAppStore } from '@/store/index.js'
 
 function Auth() {
   const navigate = useNavigate()
+  const { setUserInfo } = useAppStore()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -51,24 +53,56 @@ function Auth() {
 
   const handleSignup = async (e) => {
     e.preventDefault()
-    if (validateSignup()) {
-      toast.success('Signup successful!')
+    if (!validateSignup()) return
+
+    try {
       const response = await apiClient.post(SIGNUP, { email, password }, { withCredentials: true })
-      console.log({ response })
-      if (response.status === 201) {
+      const user = response?.data?.user
+
+      if (response?.status === 201 && user) {
+        setUserInfo(user)
+        toast.success('Signup successful!')
         navigate('/profile')
+      } else {
+        toast.error('Signup failed. Please try again.')
+      }
+    } catch (error) {
+      if (error?.response?.status === 409) {
+        toast.error('User already exists. Please log in.')
+      } else {
+        console.error('Signup error:', error)
+        toast.error('Something went wrong during signup.')
       }
     }
   }
 
   const handleLogin = async (e) => {
     e.preventDefault()
-    if (validateLogin()) {
-      toast.success('Login successful!')
+    if (!validateLogin()) return
+
+    try {
       const response = await apiClient.post(LOGIN, { email, password }, { withCredentials: true })
-      console.log({ response })
-      if (response.data.user.profileSetup) {
-        window.location.href = '/'
+      const user = response?.data?.user
+
+      if (response?.status === 200 && user?.id) {
+        setUserInfo(user)
+        toast.success('Login successful!')
+
+        if (user.profileSetup) {
+          navigate('/chat')
+        } else {
+          navigate('/profile')
+        }
+      } else {
+        toast.error('Invalid credentials or server response.')
+        console.log(response)
+      }
+    } catch (error) {
+      if (error?.response?.status === 401) {
+        toast.error('Invalid email or password.')
+      } else {
+        console.error('Login error:', error)
+        toast.error('Something went wrong during login.')
       }
     }
   }
@@ -77,7 +111,7 @@ function Auth() {
     <div className="min-h-screen w-full bg-muted px-4 py-10 flex items-center justify-center">
       <Toaster position="top-right" richColors />
       <div className="w-full max-w-6xl bg-white shadow-xl rounded-3xl overflow-hidden flex flex-col md:flex-row">
-        
+
         {/* Left: Illustration */}
         <div className="w-full md:w-1/2 bg-muted flex items-center justify-center p-6">
           <img src={login} alt="Chat Illustration" className="w-[80%] object-contain" />
