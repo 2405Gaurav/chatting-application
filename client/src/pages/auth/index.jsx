@@ -1,198 +1,173 @@
-import React, { useState } from 'react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import Victory from '@/assets/victory.svg'
-import login from '@/assets/login2.png'
-import { Toaster, toast } from 'sonner'
-import { apiClient } from '@/lib/api-client.js'
+// src/pages/auth.jsx
+
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Victory from '@/assets/victory.svg';
+import loginImg from '@/assets/login2.png';
+import { Toaster, toast } from 'sonner';
+import { apiClient } from '@/lib/api-client';
+import { SIGNUP, LOGIN } from '@/utils/constants';
+import { useNavigate } from 'react-router-dom';
+import { useAppStore } from '@/store';
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger
-} from '@/components/ui/tabs'
-import { SIGNUP, LOGIN } from '@/utils/constants'
-import { useNavigate } from 'react-router-dom'
-import { useAppStore } from '@/store/index.js'
+} from '@/components/ui/tabs';
 
 function Auth() {
-  const navigate = useNavigate()
-  const { setUserInfo } = useAppStore()
+  const navigate = useNavigate();
+  const { setUserInfo } = useAppStore();
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const validateSignup = () => {
-    if (!email.length) {
-      toast.error('Email is required')
-      return false
-    }
-    if (!password.length || !confirmPassword.length) {
-      toast.error('Password and Confirm Password are required')
-      return false
+    if (!email || !password || !confirmPassword) {
+      toast.error('All fields are required');
+      return false;
     }
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match')
-      return false
+      toast.error('Passwords do not match');
+      return false;
     }
-    return true
-  }
+    return true;
+  };
 
   const validateLogin = () => {
-    if (!email.length) {
-      toast.error('Email is required')
-      return false
+    if (!email || !password) {
+      toast.error('Email and Password are required');
+      return false;
     }
-    if (!password.length) {
-      toast.error('Password is required')
-      return false
-    }
-    return true
-  }
+    return true;
+  };
 
   const handleSignup = async (e) => {
-    e.preventDefault()
-    if (!validateSignup()) return
+    e.preventDefault();
+    if (!validateSignup()) return;
 
     try {
-      const response = await apiClient.post(SIGNUP, { email, password }, { withCredentials: true })
-      const user = response?.data?.user
+      const res = await apiClient.post(SIGNUP, { email, password }, { withCredentials: true });
+      const user = res?.data?.user;
 
-      if (response?.status === 201 && user) {
-        setUserInfo(user)
-        toast.success('Signup successful!')
-        navigate('/profile')
-      } else {
-        toast.error('Signup failed. Please try again.')
+      if (res.status === 201 && user) {
+        setUserInfo(user);
+        toast.success('Signup successful!');
+        navigate('/profile');
       }
     } catch (error) {
       if (error?.response?.status === 409) {
-        toast.error('User already exists. Please log in.')
+        toast.error('User already exists. Try logging in.');
       } else {
-        console.error('Signup error:', error)
-        toast.error('Something went wrong during signup.')
+        toast.error('Signup failed. Please try again.');
       }
     }
-  }
+  };
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    if (!validateLogin()) return
+    e.preventDefault();
+    if (!validateLogin()) return;
 
     try {
-      const response = await apiClient.post(LOGIN, { email, password }, { withCredentials: true })
-      const user = response?.data?.user
+      const res = await apiClient.post(LOGIN, { email, password }, { withCredentials: true });
+      const user = res?.data?.user;
 
-      if (response?.status === 200 && user?.id) {
-        setUserInfo(user)
-        toast.success('Login successful!')
-
-        if (user.profileSetup) {
-          navigate('/chat')
-        } else {
-          navigate('/profile')
-        }
+      if (res.status === 200 && user?.id) {
+        setUserInfo(user);
+        toast.success('Login successful!');
+        user.profileSetup ? navigate('/chat') : navigate('/profile');
       } else {
-        toast.error('Invalid credentials or server response.')
-        console.log(response)
+        toast.error('Invalid login response');
       }
     } catch (error) {
       if (error?.response?.status === 401) {
-        toast.error('Invalid email or password.')
+        toast.error('Invalid credentials');
       } else {
-        console.error('Login error:', error)
-        toast.error('Something went wrong during login.')
+        toast.error('Login failed. Try again later.');
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen w-full bg-muted px-4 py-10 flex items-center justify-center">
       <Toaster position="top-right" richColors />
       <div className="w-full max-w-6xl bg-white shadow-xl rounded-3xl overflow-hidden flex flex-col md:flex-row">
 
-        {/* Left: Illustration */}
+        {/* Left: Image */}
         <div className="w-full md:w-1/2 bg-muted flex items-center justify-center p-6">
-          <img src={login} alt="Chat Illustration" className="w-[80%] object-contain" />
+          <img src={loginImg} alt="Illustration" className="w-[80%]" />
         </div>
 
-        {/* Right: Form & Tabs */}
-        <div className="w-full md:w-1/2 flex flex-col justify-center p-10 gap-6">
-          <div className="flex flex-col items-center text-center gap-3">
-            <img src={Victory} alt="Victory" className="w-16 h-16" />
-            <h1 className="text-3xl font-bold text-foreground">Welcome</h1>
-            <p className="text-muted-foreground text-sm max-w-xs">
-              Enter your credentials to start chatting with people around the world.
-            </p>
+        {/* Right: Auth Form */}
+        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center gap-6">
+          <div className="text-center">
+            <img src={Victory} alt="Victory" className="w-16 h-16 mx-auto" />
+            <h1 className="text-3xl font-bold">Welcome</h1>
+            <p className="text-muted-foreground text-sm">Login or register to continue</p>
           </div>
 
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid grid-cols-2 w-full mb-4">
+            <TabsList className="grid grid-cols-2 mb-4">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
             </TabsList>
 
-            {/* Login Form */}
+            {/* Login */}
             <TabsContent value="login">
-              <form className="space-y-4" onSubmit={handleLogin}>
+              <form onSubmit={handleLogin} className="space-y-4">
                 <Input
                   type="email"
                   placeholder="Email"
-                  required
-                  className="rounded-full p-6"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
                 <Input
                   type="password"
                   placeholder="Password"
-                  required
-                  className="rounded-full p-6"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
                 <Button className="w-full mt-2" type="submit">Login</Button>
               </form>
             </TabsContent>
 
-            {/* Register Form */}
+            {/* Register */}
             <TabsContent value="register">
-              <form className="space-y-4" onSubmit={handleSignup}>
+              <form onSubmit={handleSignup} className="space-y-4">
                 <Input
                   type="email"
                   placeholder="Email"
-                  required
-                  className="rounded-full p-6"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
                 <Input
                   type="password"
                   placeholder="Password"
-                  required
-                  className="rounded-full p-6"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
                 <Input
                   type="password"
                   placeholder="Confirm Password"
-                  required
-                  className="rounded-full p-6"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
                 />
-                <Button className="w-full mt-2" type="submit" variant="secondary">
-                  Register
-                </Button>
+                <Button className="w-full mt-2" type="submit" variant="secondary">Register</Button>
               </form>
             </TabsContent>
           </Tabs>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Auth
+export default Auth;
