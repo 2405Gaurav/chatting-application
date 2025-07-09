@@ -1,11 +1,11 @@
+// controllers/auth-controller.js
+
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../utils/config.js";
 
-// ---------------------
-// SIGNUP CONTROLLER
-// ---------------------
+// ---------- SIGNUP ----------
 export const signup = async (req, res) => {
   try {
     const { email, password, firstName, lastName } = req.body;
@@ -29,7 +29,7 @@ export const signup = async (req, res) => {
     });
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email, name: user.firstName },
+      { userId: user._id, email: user.email },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
@@ -44,32 +44,25 @@ export const signup = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "User signed up successfully",
-      data: {
-        token,
-        user: {
-          id: user._id,
-          email: user.email,
-          profileSetup: user.profileSetup,
-        },
+      user: {
+        id: user._id,
+        email: user.email,
+        profileSetup: user.profileSetup,
       },
     });
-   
   } catch (error) {
     console.error("Signup Error:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-// ---------------------
-// LOGIN CONTROLLER
-// ---------------------
+// ---------- LOGIN ----------
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: "Please add all fields" });
-      // console.log("testing something")
     }
 
     const existingUser = await User.findOne({ email });
@@ -83,7 +76,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: existingUser._id, email: existingUser.email, name: existingUser.firstName },
+      { userId: existingUser._id, email: existingUser.email },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
@@ -98,51 +91,41 @@ export const login = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "User logged in successfully",
-      data: {
-        token,
-        user: {
-          id: existingUser._id,
-          email: existingUser.email,
-          firstName: existingUser.firstName,
-          lastName: existingUser.lastName,
-          profileSetup: existingUser.profileSetup,
-          image: existingUser.image,
-          color: existingUser.color,
-        },
+      user: {
+        id: existingUser._id,
+        email: existingUser.email,
+        firstName: existingUser.firstName,
+        lastName: existingUser.lastName,
+        profileSetup: existingUser.profileSetup,
+        image: existingUser.image,
+        color: existingUser.color,
       },
     });
-    
-}
-  catch (error) {
+  } catch (error) {
     console.error("Login Error:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-//Get User INfo
 
-export const getuserInfo= async (req,res)=>{
-  console.log(req.userId);
-  try{
-    const userData=await User.findById(req.userId)
-    if(!userData) return res.status(404).send("user with the given data not found");
+// ---------- GET USER INFO ----------
+export const getuserInfo = async (req, res) => {
+  try {
+    const userData = await User.findById(req.userId);
+    if (!userData) {
+      return res.status(404).send("User not found");
+    } 
+
     return res.status(200).json({
-        
-          id: userData._id,
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          profileSetup: userData.profileSetup,
-          image: userData.image,
-          color: userData.color,
-      
-      
+      id: userData._id,
+      email: userData.email,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      profileSetup: userData.profileSetup,
+      image: userData.image,
+      color: userData.color,
     });
-  }catch(error){
-    console.log({error})
-    return res.status(500).send("Internal server error")
+  } catch (error) {
+    console.error("Get User Info Error:", error);
+    return res.status(500).send("Internal Server Error");
   }
- 
-
-
-
-}
+};
