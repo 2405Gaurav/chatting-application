@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { FaPlus, FaTrash } from 'react-icons/fa';
-import Input from '@/components/ui/input';
+import {Input} from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { profile } from 'console';
 
 function Profile() {
   const navigate = useNavigate();
@@ -19,11 +20,21 @@ function Profile() {
 
   const avatarColors = ['#ffd6e7', '#d8f3dc', '#d0ebff', '#fff3bf']; // soft pink, green, blue, yellow
 
-  const saveChanges = () => {
-    const nextIndex = (selectedColor + 1) % avatarColors.length;
-    setSelectedColor(nextIndex);
+ const saveChanges = () => {
+  setUserInfo({
+    ...userInfo,
+    firstName,
+    lastName
+    
+  });
+  console.log(userInfo);
+};
+
+
+   
+
     // you could also save to backend here
-  };
+  
 
   return (
     <div className="bg-[#1b1c24] h-[100vh] flex items-center justify-center flex-col gap-10">
@@ -57,12 +68,23 @@ function Profile() {
               )}
             </Avatar>
 
+
             {hovered && (
               <div className='absolute inset-0 flex items-center justify-center bg-black/50 text-white text-2xl rounded-full'>
                 {image ? <FaTrash className='text-white text-3xl cursor-pointer' /> :
                   <FaPlus className='text-white text-3xl cursor-pointer' />}
               </div>
             )}
+          </div>
+          <div>
+            {avatarColors.map((color, index) => (
+              <div
+                key={color}
+                className={`w-10 h-10 p-3 m-4  rounded-full cursor-pointer ${selectedColor === index ? 'border-2 border-red-700' : ''}`}
+                style={{ backgroundColor: color }}
+                onClick={() => setSelectedColor(index)}
+              />
+            ))}
           </div>
 
           <div className='flex flex-col gap-5 min-w-32 md:min-w-64 text-white items-center justify-center'>
@@ -74,14 +96,14 @@ function Profile() {
               className="rounded-lg p-6 bg-[#2c2e3b] border-none w-full"
             />
             <Input
-              value={firstName}
+              value={firstName ?? " "}
               placeholder="First Name"
               type="text"
               onChange={(e) => setFirstName(e.target.value)}
               className="rounded-lg p-6 bg-[#2c2e3b] border-none w-full"
             />
             <Input
-              value={lastName}
+              value={lastName ?? " "}
               placeholder="Second Name"
               type="text"
               onChange={(e) => setLastName(e.target.value)}
