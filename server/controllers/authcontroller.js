@@ -1,11 +1,19 @@
-// controllers/auth-controller.js
-
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../utils/config.js";
 
-// ---------- SIGNUP ----------
+// --- Helper: Send JWT cookie ---
+const sendTokenAsCookie = (res, token) => {
+  res.cookie("jwt", token, {
+    httpOnly: true,
+    secure: false,       // ✅ False for HTTP (localhost)
+    sameSite: "None",     //
+    maxAge: JWT_EXPIRES_IN * 1000, // ms
+  });
+};
+
+// --- Signup ---
 export const signup = async (req, res) => {
   try {
     const { email, password, firstName, lastName } = req.body;
@@ -34,14 +42,9 @@ export const signup = async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
-    res.cookie("jwt", token, {
-      secure: true,
-      httpOnly: true,
-      sameSite: "None",
-      maxAge: JWT_EXPIRES_IN * 1000,
-    });
+    sendTokenAsCookie(res, token);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "User signed up successfully",
       user: {
@@ -56,7 +59,7 @@ export const signup = async (req, res) => {
   }
 };
 
-// ---------- LOGIN ----------
+// --- Login ---
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -81,14 +84,9 @@ export const login = async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
-    res.cookie("jwt", token, {
-      secure: true,
-      httpOnly: true,
-      sameSite: "None",
-      maxAge: JWT_EXPIRES_IN * 1000,
-    });
+    sendTokenAsCookie(res, token);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "User logged in successfully",
       user: {
@@ -107,13 +105,13 @@ export const login = async (req, res) => {
   }
 };
 
-// ---------- GET USER INFO ----------
+// --- Get User Info ---
 export const getuserInfo = async (req, res) => {
   try {
     const userData = await User.findById(req.userId);
     if (!userData) {
       return res.status(404).send("User not found");
-    } 
+    }
 
     return res.status(200).json({
       id: userData._id,
@@ -126,6 +124,44 @@ export const getuserInfo = async (req, res) => {
     });
   } catch (error) {
     console.error("Get User Info Error:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// --- Update Profile ---
+export const updateprofile = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { firstName, lastName, color } = req.body;
+
+    if (!firstName || !lastName || !color) {
+      console.log("Missing fields in update-profile request");
+      return res
+        .status(400)
+        .send("firstName, lastName, and color are required to update.");
+    }
+
+    const userData = await User.findByIdAndUpdate(
+      userId,
+      { firstName, lastName, color, profileSetup: true },
+      { new: true, runValidators: true }
+    );
+
+    if (!userData) {
+      return res.status(404).send("User not found");
+    }
+
+    return res.status(200).json({
+      id: userData._id,
+      email: userData.email,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      profileSetup: userData.profileSetup,
+      image: userData.image,
+      color: userData.color,
+    });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
     return res.status(500).send("Internal Server Error");
   }
 };

@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
   {
     email: {
       type: String,
-      required: true,  // just making sure it's present
+      required: true,
     },
     password: {
       type: String,
@@ -14,7 +14,14 @@ const userSchema = new mongoose.Schema(
     firstName: String,
     lastName: String,
     image: String,
-    color: Number,
+    type: String,
+
+    // ✅ color as a number, representing a theme index
+    color: {
+      type: Number,
+      default: 0, // 0 = default theme
+    },
+
     profileSetup: {
       type: Boolean,
       default: false,
@@ -22,8 +29,6 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-
 
 const User = mongoose.model("User", userSchema);
 
