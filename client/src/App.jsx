@@ -20,32 +20,35 @@ const AuthRoute = ({ children }) => {
 
 function App() {
   const { userInfo, setUserInfo } = useAppStore();
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const getUserData = async () => {
-  //     try {
-  //       const response = await apiClient.get(GET_USER_INFO, { withCredentials: true });
-  //       if (response.status === 200 && response.data.id) {
-             
-  //         setUserInfo(response.data);
-  //       } else {
-  //         setUserInfo(undefined);
-  //       }
-  //     // eslint-disable-next-line no-unused-vars
-  //     } catch (error) {
-  //       setUserInfo(undefined);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+ useEffect(() => {
+  const getUserData = async () => {
+    try {
+      const response = await apiClient.get(GET_USER_INFO); // no need to pass again if set globally
+      if (response.status === 200 && response.data?.id) {
+        setUserInfo(response.data);
+      } else {
+        setUserInfo(undefined);
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        setUserInfo(undefined); // not logged in — normal
+      } else {
+        console.error("Unexpected error getting user info:", error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  //   getUserData();
-  // }, [userInfo, setUserInfo]);
+  getUserData();
+}, []);
 
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <BrowserRouter>
