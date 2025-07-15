@@ -1,5 +1,4 @@
 // src/pages/auth.jsx
-
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -92,78 +91,107 @@ function Auth() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-muted px-4 py-10 flex items-center justify-center">
+    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-purple-50 px-4 py-10 flex items-center justify-center">
       <Toaster position="top-right" richColors />
-      <div className="w-full max-w-6xl bg-white shadow-xl rounded-3xl overflow-hidden flex flex-col md:flex-row">
+      <div className="w-full max-w-5xl bg-white shadow-lg rounded-2xl overflow-hidden flex flex-col md:flex-row border border-gray-100">
 
         {/* Left: Image */}
-        <div className="w-full md:w-1/2 bg-muted flex items-center justify-center p-6">
-          <img src={loginImg} alt="Illustration" className="w-[80%]" />
+        <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center p-8">
+          <img 
+            src={loginImg} 
+            alt="Illustration" 
+            className="w-full max-w-md object-contain transition-transform hover:scale-105 duration-300" 
+          />
         </div>
 
         {/* Right: Auth Form */}
-        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center gap-6">
-          <div className="text-center">
-            <img src={Victory} alt="Victory" className="w-16 h-16 mx-auto" />
-            <h1 className="text-3xl font-bold">Welcome</h1>
-            <p className="text-muted-foreground text-sm">Login or register to continue</p>
+        <div className="w-full md:w-1/2 p-8 md:p-10 flex flex-col justify-center gap-6">
+          <div className="text-center space-y-2">
+            <img src={Victory} alt="Victory" className="w-16 h-16 mx-auto mb-2" />
+            <h1 className="text-3xl font-bold text-gray-800">Welcome Back</h1>
+            <p className="text-muted-foreground text-sm">Please enter your details</p>
           </div>
 
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid grid-cols-2 mb-4">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
+            <TabsList className="grid grid-cols-2 w-full bg-gray-100 p-1 rounded-lg">
+              <TabsTrigger 
+                value="login" 
+                className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-primary rounded-md py-2"
+              >
+                Login
+              </TabsTrigger>
+              <TabsTrigger 
+                value="register" 
+                className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-primary rounded-md py-2"
+              >
+                Register
+              </TabsTrigger>
             </TabsList>
 
-            {/* Login */}
-            <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-4">
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <Input
-                  type="password"
-                  placeholder="Password"
-                   autoComplete="current-password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <Button className="w-full mt-2" type="submit">Login</Button>
-              </form>
-            </TabsContent>
+            <div className="mt-6">
+              {/* Login */}
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-3">
+                    <Input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="py-5 px-4 rounded-xl"
+                      required
+                    />
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="py-5 px-4 rounded-xl"
+                      required
+                    />
+                  </div>
+                  <Button className="w-full mt-4 py-5 rounded-xl" type="submit">
+                    Sign In
+                  </Button>
+                </form>
+              </TabsContent>
 
-            {/* Register */}
-            <TabsContent value="register">
-              <form onSubmit={handleSignup} className="space-y-4">
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <Input
-                  type="password"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-                <Button className="w-full mt-2" type="submit" variant="secondary">Register</Button>
-              </form>
-            </TabsContent>
+              {/* Register */}
+              <TabsContent value="register">
+                <form onSubmit={handleSignup} className="space-y-4">
+                  <div className="space-y-3">
+                    <Input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="py-5 px-4 rounded-xl"
+                      required
+                    />
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="py-5 px-4 rounded-xl"
+                      required
+                    />
+                    <Input
+                      type="password"
+                      placeholder="Confirm Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="py-5 px-4 rounded-xl"
+                      required
+                    />
+                  </div>
+                  <Button className="w-full mt-4 py-5 rounded-xl" type="submit" variant="default">
+                    Create Account
+                  </Button>
+                </form>
+              </TabsContent>
+            </div>
           </Tabs>
         </div>
       </div>
